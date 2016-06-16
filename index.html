@@ -8,12 +8,13 @@
       @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
-      body { font-family: 'Droid Serif'; }
+      body { font-family: 'Droid Serif';font-size: 2em; }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-slide-content { font-size: 35px; }
     </style>
   </head>
   <body>
@@ -40,6 +41,14 @@ class: center, middle
 * Florian Kammermann working at Post IT
 * Mostly doing DevOps stuff and gateleen in the moment
 * We (Post IT) opensourced gateleen in march 2016
+
+---
+
+# Verticles
+
+* Verticles are isolated with seperate class loaders
+* A verticle never gets executed by more than one thread concurrently
+* No race conditions, no deadlocks. You write your code single threaded
 
 ---
 

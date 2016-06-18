@@ -52,6 +52,32 @@ class: center, middle
 
 ---
 
+# Chat example simple
+
+* Single startup, no cluster
+* Test with 2 chromium windows
+* Test with another firefox window
+ 
+---
+
+# Chat example shell
+
+* Login to shell http://localhost:8989/shell.html
+* bus-tail chat.to.server
+* bus-tail chat.to.client
+* bus-send chat.to.server hey mister server
+* bus-send chat.to.client hey mister client
+
+---
+
+# Chat example clustered
+
+* java -jar build/libs/chat-0.0.1-SNAPSHOT-all.jar -cluster
+* java -jar -DshellPort=8999 -DhttpPort=8181 -jar build/libs/chat-0.0.1-SNSHOT-all.jar -cluster
+* issue chat message
+* change in client from publish to send
+ 
+
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
     </script>

@@ -13,8 +13,10 @@
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
       }
-      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code { font-size: 20px; }, .remark-inline-code { font-family: 'Ubuntu Mono'; }
       .remark-slide-content { font-size: 35px; }
+      .remark-slide-content-small { font-size: 25px; }
+      .p-margin-small p { margin-bottom: 0.6em; margin-top: 0.6em; }
     </style>
   </head>
   <body>
@@ -43,10 +45,47 @@ class: center, middle
 * We (Post IT) opensourced gateleen in march 2016
 
 ---
+class: center, middle
 
 # vert.x
 
-* Think of it as a Swiss Army Knife for building modern, scalable, apps.
+## Think of it as a Swiss Army Knife <br> for building modern, scalable, apps
+
+---
+class: p-margin-small
+
+Runs on the JVM 
+ 
+Polyglot, application components can be written in Java, JavaScript, Groovy, Ruby  
+
+Event Driven, communication over distributed event bus  
+
+Simple concurrency model, all code is single threaded  
+
+Simple, asynchronous programming model  
+
+---
+class: remark-slide-content-small
+
+# Hello World Java (compile on the fly)
+
+Download https://bintray.com/artifact/download/vertx/downloads/vert.x-3.2.1.zip and put it on the `PATH`
+
+`git clone https://github.com/floriankammermann/vertx-examples.git`
+
+`cd vertx-examples/hello-world-java/src/main/java`
+
+`vertx run org/swisspush/vertx/examples/HelloJugsBern.java`
+
+---
+
+# Hello World Java (fatJar)
+
+* Download https://services.gradle.org/distributions/gradle-2.14-bin.zip and put it on the `PATH`
+* `git clone https://github.com/floriankammermann/vertx-examples.git`
+* `cd vertx-examples/hello-world-java/`
+* `gradle shadowJar`
+* `java -jar build/libs/hello-world-0.0.1-SNAPSHOT-all.jar`
 
 ---
 
@@ -83,6 +122,34 @@ class: center, middle
 * issue chat message
 * change in client from publish to send
  
+---
+
+# SockJS 
+
+* http://sockjs.org/
+* Browser JavaScript library that provides a WebSocket-like object
+* Coherent, cross-browser, Javascript API
+* Low latency, full duplex, cross-domain communication channel between
+
+---
+
+# SockJS
+
+SockJSHandler for using SockJS in vert.x-web applications
+
+```java
+Router router = Router.router(vertx);
+
+SockJSHandlerOptions options = 
+	new SockJSHandlerOptions()
+		.setHeartbeatInterval(2000);
+
+SockJSHandler sockJSHandler = 
+	SockJSHandler.create(vertx, options);
+
+router.route("/myapp/*").handler(sockJSHandler);
+```
+
 ---
 
 # vert.x web

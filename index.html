@@ -67,25 +67,67 @@ Simple, asynchronous programming model
 ---
 class: remark-slide-content-small
 
-# Hello World Java (compile on the fly)
+# Tools to install for the examples
 
 Download https://bintray.com/artifact/download/vertx/downloads/vert.x-3.2.1.zip and put it on the `PATH`
 
+Download https://services.gradle.org/distributions/gradle-2.14-bin.zip and put it on the `PATH`
+
 `git clone https://github.com/floriankammermann/vertx-examples.git`
+
+---
+class: remark-slide-content-small
+
+# Hello World Java (compile on the fly)
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
 `vertx run org/swisspush/vertx/examples/HelloJugsBern.java`
 
+http://localhost:8080
+
 ---
+class: remark-slide-content-small
+
+# Hello World Javascript
+
+`cd vertx-examples/hello-world-js/src/main/java`
+
+`vertx run org/swisspush/vertx/examples/HelloJugsBern.js`
+
+http://localhost:8080
+
+---
+class: remark-slide-content-small
 
 # Hello World Java (fatJar)
 
-* Download https://services.gradle.org/distributions/gradle-2.14-bin.zip and put it on the `PATH`
-* `git clone https://github.com/floriankammermann/vertx-examples.git`
-* `cd vertx-examples/hello-world-java/`
-* `gradle shadowJar`
-* `java -jar build/libs/hello-world-0.0.1-SNAPSHOT-all.jar`
+`cd vertx-examples/hello-world-java/`
+
+`gradle shadowJar`
+
+`java -jar build/libs/hello-world-0.0.1-SNAPSHOT-all.jar`
+
+http://localhost:8080
+
+---
+class: remark-slide-content-small
+
+# Hello World Java (embedded)
+
+`cd vertx-examples/hello-world-embedded/`
+
+`gradle build`
+
+`cp build/libs/hello-world-embedded-0.0.1-SNAPSHOT.war /opt/apache-tomcat-8.0.36/webapps/ROOT.war`
+
+`/opt/apache-tomcat-8.0.36/bin/startup.sh`
+
+http://localhost:8080
+
+---
+
+.center[![Default-aligned image](images/eventloop.png)]
 
 ---
 

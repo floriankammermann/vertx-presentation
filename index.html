@@ -126,8 +126,36 @@ class: remark-slide-content-small
 http://localhost:8080
 
 ---
+class: remark-slide-content-small
+
+# Writing Tests
+
+vertx unit helps writing tests
+
+`cd vertx-examples/hello-world-java/`
+
+`gradle test`
+
+Verticle is deployed, tests are executed against the http API
+
+---
 
 .center[![Default-aligned image](images/eventloop.png)]
+
+---
+
+.center[![Default-aligned image](images/eventloops.png)]
+
+
+---
+
+# Asynchronous Development Model
+
+* no return
+* only passing handlers
+* when a method finished its execution it calls the handler
+* similar to js or swing ActionListener (anonymous classes)
+* callback hell? yes -> JavaRx and CompletableFuture to the rescue
 
 ---
 

@@ -14,7 +14,7 @@
         font-weight: normal;
       }
       .remark-code { font-size: 20px; }, .remark-inline-code { font-family: 'Ubuntu Mono'; }
-      .remark-slide-content { font-size: 35px; }
+      .remark-slide-content { font-size: 35px; padding-left: 50px; padding-right: 50px; }
       .remark-slide-content-small { font-size: 25px; }
       .p-margin-small p { margin-bottom: 0.6em; margin-top: 0.6em; }
     </style>
@@ -31,10 +31,9 @@ class: center, middle
 # Agenda
 
 1. What is vert.x
-2. Hands on
-3. Under the hood
-4. vert.x and microservices
-5. gateleen
+2. Vert.x by examples
+3. vert.x and microservices
+4. vert.x web
 
 ---
 
@@ -69,11 +68,11 @@ class: remark-slide-content-small
 
 # Tools to install for the examples
 
-Download https://bintray.com/artifact/download/vertx/downloads/vert.x-3.2.1.zip and put it on the `PATH`
+Download [vertx](https://bintray.com/artifact/download/vertx/downloads/vert.x-3.2.1.zip) and put it on the `PATH`
 
-Download https://services.gradle.org/distributions/gradle-2.14-bin.zip and put it on the `PATH`
+Download [gradle](https://services.gradle.org/distributions/gradle-2.14-bin.zip) and put it on the `PATH`
 
-Download https://java.net/projects/visualvm/downloads/download/release138/visualvm_138.zip and put it on the `PATH`
+Download [visualvm](]https://java.net/projects/visualvm/downloads/download/release138/visualvm_138.zip) and put it on the `PATH`
 
 `git clone https://github.com/floriankammermann/vertx-examples.git`
 
@@ -201,7 +200,7 @@ public class VertxHandlerTest {
 ---
 class: remark-slide-content-small
 
-# Round Robin 
+# Verticles (Round Robin) 
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
@@ -247,31 +246,142 @@ class: remark-slide-content-small
 
 `gradle shadowJar`
 
-# Chat example simple
+`java -DworkerVerticle=false -DworkerInstances=1 -jar build/libs/verticle-worker-0.0.1-SNAPSHOT-all.jar`  
 
-* Single startup, no cluster
-* Test with 2 chromium windows
-* Test with another firefox window
- 
----
+`while true; clear; do curl http://localhost:8080; sleep 0.3; done`
 
-# Chat example shell
+`visualvm`  
 
-* Login to shell http://localhost:8989/shell.html
-* bus-tail chat.to.server
-* bus-tail chat.to.client
-* bus-send chat.to.server hey mister server
-* bus-send chat.to.client hey mister client
+BlockingVerticle blocks an eventloop, but still enough eventloops available to serve http
 
 ---
+class: remark-slide-content-small
 
-# Chat example clustered
+# Verticles (Worker)
 
-* java -jar build/libs/chat-0.0.1-SNAPSHOT-all.jar -cluster
-* java -jar -DshellPort=8999 -DhttpPort=8181 -jar build/libs/chat-0.0.1-SNSHOT-all.jar -cluster
-* issue chat message
-* change in client from publish to send
+`java -DworkerVerticle=false -DworkerInstances=8 -jar build/libs/verticle-worker-0.0.1-SNAPSHOT-all.jar`  
+
+`while true; clear; do curl http://localhost:8080; sleep 0.3; done`
+
+`visualvm`  
+
+BlockerVerticles block all eventloops, http requests can not be served for 5sec
+
+---
+class: remark-slide-content-small
+
+# Verticles (Worker)
+
+`java -DworkerVerticle=true -DworkerInstances=8 -jar build/libs/verticle-worker-0.0.1-SNAPSHOT-all.jar`  
+
+`while true; clear; do curl http://localhost:8080; sleep 0.3; done`
+
+`visualvm`  
+
+BlockerVerticles are executed on worker threads, the event loops can serve http requests
+
+---
+
+# Distributed Eventbus
+
+.center[![Default-aligned image](images/eventbus.png)]
+
+---
+
+# Distributed Eventbus
+
+* single event bus instance per vert.x instance
+* API's for every languages
+* can be bridged over SockJS to span into the browser
+* several bridges available for other technologies (eg. nodejs)
+* can span over multiple jvm's, host's
+
+---
+class: remark-slide-content-small
+
+# Eventbus Chat (One Instance)
+
+`cd vertx-examples/verticle-worker`
+
+`gradle shadowJar`
+
+`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar`
+
+http://localhost:8080 test in two differnt Browsers with different tabs
+
+---
+class: remark-slide-content-small
+
+# Eventbus Chat (Vertx Shell)
+
+http://localhost:8989/shell.html (admin/password)
+
+`bus-tail chat.to.server`
+
+`bus-tail chat.to.client`
+
+`bus-send chat.to.server "from the shell"`
+
+---
+class: remark-slide-content-small
+
+# Eventbus Chat (Two Instances Clustered)
+
+`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
+`java -DshellPort=8999 -DhttpPort=8181 -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
+
+http://localhost:8080  
+http://localhost:8181
+
+---
+class: p-margin-small
+
+# Eventbus (Discovery)
+
+Pluggable Clustermanager, default Hazelcast 
+
+Hazelcast uses Multicast to discover nodes
+
+Inter-node transport over tcp connections, done by vert.x
+
+---
+class: remark-slide-content-small
+
+# Eventbus (Clusterwatchdog)
+
+`git clone https://github.com/swisspush/vertx-cluster-watchdog.git`
+
+`cd vertx-cluster-watchdog; gradle shadowJar`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar`  
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar -conf conf.json`  
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar -conf conf1.json`  
+
+http://localhost:7878/clusterWatchdogStats
+
+---
+
+# Eventbus Messaging Types
+
+* publish/subscribe
+* point to point
+* request-response
+
+---
+
+# Eventbus Chat (Messaging Type)
+
+Javascript Client uses publish/subscribe  
+We sent to both instances, which sent two messages back
+
+```javascript
+eb.publish("chat.to.server", message);
+```
+change to 
  
+```javascript
+eb.send("chat.to.server", message);
+```
 ---
 
 # SockJS 
@@ -302,7 +412,27 @@ router.route("/myapp/*").handler(sockJSHandler);
 
 ---
 
-# vert.x web
+# Vert.x in one Slide
+
+.center[![Default-aligned image](images/vertxoverview.png)]
+
+---
+
+# Vert.x in the Microservice World
+
+* relatively small
+* deployed independently
+* improved fault isolation
+* independent development
+* can be implemented in different languages
+* minimal archtitectural lockin
+* smart endpoints, dump pipes
+* organized around business capabilities and priorities
+* interaction with other microservices over standard interfaces
+
+---
+
+# Vert.x web
 
 * Routing based on method, path, etc
 * Extraction of parameters from paths
@@ -312,6 +442,85 @@ router.route("/myapp/*").handler(sockJSHandler);
 * Static file serving
 * SockJS support
 * Event-bus bridge
+
+---
+class: remark-slide-content-small
+
+# Simple CRUD
+
+`git clone https://github.com/cescoffier/my-vertx-first-app.git`
+
+`cd my-vertx-first-app; mvn clean install`
+
+ATTENTION!!! you need mongodb running
+
+`java -jar target/my-first-app-1.0-SNAPSHOT-fat.jar`
+
+http://localhost:8080/assets/index.html
+
+---
+
+# More Vert.x Modules
+
+* Data Access
+  * MongoDB Client
+  * Redis Client
+  * JDBC Client
+* Integration
+  * Mail Client
+  * STOMP Client & Server
+  * JCA Adaptor
+  * TCP Eventbus Bridge
+
+---
+
+# More Vert.x Modules
+
+* Authentication and Authorisation
+  * Auth Common
+  * JWT Auth
+  * Shiro Auth
+  * OAuth 2
+* Reactive 
+  * Vert.x Rx
+  * Reactive Streams
+* Operations
+  * Metrics
+  * Shell
+
+---
+
+# gateleen
+
+https://github.com/swisspush/gateleen
+
+Gateleen is a RESTful middleware toolkit for building API gateways
+
+Like vert.x itself its a toolkit, where you can pick the options you need.
+
+Time is too short, so I will present it in a next talk
+
+---
+class: center, middle
+
+# Post IT is hiring 
+
+http://jobs.post.ch
+
+---
+
+# Resources
+
+https://github.com/floriankammermann/vertx-gateleen-presentation
+
+https://github.com/floriankammermann/vertx-examples
+
+https://github.com/swisspush/gateleen
+
+---
+class: center, middle
+
+# happy coding 
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">

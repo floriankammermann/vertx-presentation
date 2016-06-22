@@ -73,6 +73,8 @@ Download https://bintray.com/artifact/download/vertx/downloads/vert.x-3.2.1.zip 
 
 Download https://services.gradle.org/distributions/gradle-2.14-bin.zip and put it on the `PATH`
 
+Download https://java.net/projects/visualvm/downloads/download/release138/visualvm_138.zip and put it on the `PATH`
+
 `git clone https://github.com/floriankammermann/vertx-examples.git`
 
 ---
@@ -121,7 +123,7 @@ class: remark-slide-content-small
 
 `cp build/libs/hello-world-embedded-0.0.1-SNAPSHOT.war /opt/apache-tomcat-8.0.36/webapps/ROOT.war`
 
-`/opt/apache-tomcat-8.0.36/bin/startup.sh`
+`/opt/apache-tomcat-8.0.36/bin/catalina.sh run`
 
 http://localhost:8080
 
@@ -140,9 +142,13 @@ Verticle is deployed, tests are executed against the http API
 
 ---
 
+# Reactor Pattern
+
 .center[![Default-aligned image](images/eventloop.png)]
 
 ---
+
+# Multi Reactor Pattern
 
 .center[![Default-aligned image](images/eventloops.png)]
 
@@ -151,21 +157,95 @@ Verticle is deployed, tests are executed against the http API
 
 # Asynchronous Development Model
 
-* no return
-* only passing handlers
+* no return, only passing handlers
 * when a method finished its execution it calls the handler
-* similar to js or swing ActionListener (anonymous classes)
-* callback hell? yes -> JavaRx and CompletableFuture to the rescue
+* similar to js callbacks or swing ActionListener (anonymous classes)
+* callback hell? yes -> [JavaRx](https://github.com/ReactiveX/RxJava/wiki) and [CompletableFuture](http://qrman.github.io/posts/2015/08/28/callback_hell_completablefuture_ftw/) to the rescue (similar to js promises)
+* no exceptions, only Futures that fail
 
 ---
 
+# Handler example
+
+```java
+import io.vertx.core.Handler;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class VertxHandlerTest {
+
+    private void addition(int value1, int value2, 
+			  Handler<Integer> handler) {
+
+        Integer result = value1 + value2;
+        handler.handle(result);
+    }
+
+    @Test
+    public void testAddition() {
+        addition(1,2, t -> 
+		 assertEquals(Integer.valueOf(3), t));
+    }
+}
+```
+
+---
 # Verticles
 
-* Verticles are isolated with seperate class loaders
+* Verticles are isolated with separate class loaders
 * A verticle never gets executed by more than one thread concurrently
 * No race conditions, no deadlocks. You write your code single threaded
+* Multiple instances can serve on one port (eg. http server) --> round robin, every instance on its own event loop
 
 ---
+class: remark-slide-content-small
+
+# Round Robin 
+
+`cd vertx-examples/hello-world-java/src/main/java`
+
+`vertx run org/swisspush/vertx/examples/HelloJugsBern.java --instances 2`
+
+`curl http://localhost:8080`
+
+Same with browser --> sticky session
+
+---
+class: remark-slide-content-small
+
+# Verticles (Instances/Loadbalancing)
+
+`cd vertx-examples/verticle-instances`
+
+`gradle shadowJar`
+
+`java -DcryptoInstances=1 -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
+
+`visualvm`
+
+x=2...max-cores+2  
+`java -DcryptoInstances=x -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
+
+test-series(x=1...6) = {32,60,72,79,78,80}  
+Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+
+---
+
+# Worker Verticles
+
+* Doesn't use  an event loop 
+* Using a thread from the Vert.x worker thread pool
+* Worker verticles are designed for calling blocking code, as they won't block any event loops
+
+---
+class: remark-slide-content-small
+
+# Verticles (Worker)
+
+`cd vertx-examples/verticle-worker`
+
+`gradle shadowJar`
 
 # Chat example simple
 

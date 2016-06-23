@@ -24,7 +24,7 @@
 
 class: center, middle
 
-# vert.x & gateleen
+# vert.x 
 
 ---
 
@@ -61,7 +61,7 @@ Event Driven, communication over distributed event bus
 
 Simple concurrency model, all code is single threaded  
 
-Simple, asynchronous programming model  
+(Simple), asynchronous programming model  
 
 ---
 class: remark-slide-content-small
@@ -83,7 +83,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugsBern.java`
+`vertx run org/swisspush/vertx/examples/HelloJugBern.java`
 
 http://localhost:8080
 
@@ -92,9 +92,9 @@ class: remark-slide-content-small
 
 # Hello World Javascript
 
-`cd vertx-examples/hello-world-js/src/main/java`
+`cd vertx-examples/hello-world-js/src/main/js`
 
-`vertx run org/swisspush/vertx/examples/HelloJugsBern.js`
+`vertx run org/swisspush/vertx/examples/HelloJugBern.js`
 
 http://localhost:8080
 
@@ -157,7 +157,7 @@ Verticle is deployed, tests are executed against the http API
 # Asynchronous Development Model
 
 * no return, only passing handlers
-* when a method finished its execution it calls the handler
+* when a method finished its execution, it calls the handler
 * similar to js callbacks or swing ActionListener (anonymous classes)
 * callback hell? yes -> [JavaRx](https://github.com/ReactiveX/RxJava/wiki) and [CompletableFuture](http://qrman.github.io/posts/2015/08/28/callback_hell_completablefuture_ftw/) to the rescue (similar to js promises)
 * no exceptions, only Futures that fail
@@ -204,7 +204,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugsBern.java --instances 2`
+`vertx run org/swisspush/vertx/examples/HelloJugBern.java --instances 2`
 
 `curl http://localhost:8080`
 
@@ -353,9 +353,9 @@ class: remark-slide-content-small
 
 `cd vertx-cluster-watchdog; gradle shadowJar`
 
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar -conf conf.json`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-a.jar -conf conf1.json`  
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf.json`  
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf1.json`  
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf2.json`  
 
 http://localhost:7878/clusterWatchdogStats
 

@@ -192,7 +192,6 @@ public class VertxHandlerTest {
 ---
 # Verticles
 
-* Verticles are isolated with separate class loaders
 * A verticle never gets executed by more than one thread concurrently
 * No race conditions, no deadlocks. You write your code single threaded
 * Multiple instances can serve on one port (eg. http server) --> round robin, every instance on its own event loop

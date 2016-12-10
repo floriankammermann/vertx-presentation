@@ -327,44 +327,18 @@ http://localhost:8989/shell.html (admin/password)
 
 `bus-publish chat.to.server "from the shell"`
 
-`bus-publish chat.to.client "from the shell"`
-
----
-class: remark-slide-content-small
-
-# Eventbus Chat (Two Instances Clustered)
-
-`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
-`java -DshellPort=8999 -DhttpPort=8181 -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
-
-http://localhost:8080  
-http://localhost:8181
+`bus-publish chat.to.client "from the shell no timestamp"`
 
 ---
 class: p-margin-small
 
 # Eventbus (Discovery)
 
-Pluggable Clustermanager, default Hazelcast 
+Pluggable Clustermanager, default Hazelcast
 
 Hazelcast uses Multicast to discover nodes
 
 Inter-node transport over tcp connections, done by vert.x
-
----
-class: remark-slide-content-small
-
-# Eventbus (Clusterwatchdog)
-
-`git clone https://github.com/swisspush/vertx-cluster-watchdog.git`
-
-`cd vertx-cluster-watchdog; gradle shadowJar`
-
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf.json`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf1.json`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf2.json`  
-
-http://localhost:7878/clusterWatchdogStats
 
 ---
 
@@ -376,46 +350,76 @@ http://localhost:7878/clusterWatchdogStats
 
 ---
 
-# Eventbus Chat (Messaging Type)
-
-Javascript Client uses publish/subscribe  
-We sent to both instances, which sent two messages back
-
-```javascript
-eb.publish("chat.to.server", message);
-```
-change to 
- 
-```javascript
-eb.send("chat.to.server", message);
-```
----
-
-# SockJS 
+# Eventbus in Browser
 
 * http://sockjs.org/
 * Browser JavaScript library that provides a WebSocket-like object
-* Coherent, cross-browser, Javascript API
-* Low latency, full duplex, cross-domain communication channel between
+* Coherent, cross-browser, javascript API
+* Low latency, full duplex, cross-domain communication channel
 
 ---
 
-# SockJS
+# Eventbus in Browser
 
 SockJSHandler for using SockJS in vert.x-web applications
 
 ```java
 Router router = Router.router(vertx);
 
-SockJSHandlerOptions options = 
+SockJSHandlerOptions options =
 	new SockJSHandlerOptions()
 		.setHeartbeatInterval(2000);
 
-SockJSHandler sockJSHandler = 
+SockJSHandler sockJSHandler =
 	SockJSHandler.create(vertx, options);
 
 router.route("/myapp/*").handler(sockJSHandler);
 ```
+
+---
+class: remark-slide-content-small
+
+# Eventbus Chat (Two Instances Clustered)
+
+`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`
+
+`java -DshellPort=8999 -DhttpPort=8181 -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`
+
+http://localhost:8080/index8080.html
+http://localhost:8181/index8181.html
+
+---
+
+# Eventbus Chat (Messaging Type)
+
+Javascript Client uses publish/subscribe
+We sent to both instances, which sent two messages back
+
+```javascript
+eb.publish("chat.to.server", message);
+```
+change to
+
+```javascript
+eb.send("chat.to.server", message);
+```
+
+---
+class: remark-slide-content-small
+
+# Eventbus (Clusterwatchdog)
+
+`git clone https://github.com/swisspush/vertx-cluster-watchdog.git`
+
+`cd vertx-cluster-watchdog; gradle shadowJar`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf.json`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf1.json`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf2.json`
+
+http://localhost:7878/clusterWatchdogStats
 
 ---
 

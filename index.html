@@ -33,7 +33,8 @@ class: center, middle
 1. What is vert.x
 2. Vert.x by examples
 3. vert.x and microservices
-4. vert.x web
+4. Whats the fuzz about reactive
+5. vert.x web
 
 ---
 
@@ -55,13 +56,15 @@ class: p-margin-small
 
 Runs on the JVM 
  
-Polyglot, application components can be written in Java, JavaScript, Groovy, Ruby, Ceylon 
+Polyglot, application components can be written in Java, JavaScript, Groovy, Ruby, Ceylon
 
 Event Driven, communication over distributed event bus  
 
 Simple concurrency model, all code is single threaded  
 
-(Simple), asynchronous programming model  
+(Simple), asynchronous programming model
+
+Its reactive (reactive streams, rxjava support)
 
 ---
 class: remark-slide-content-small
@@ -83,7 +86,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.java`
+`vertx run org/swisspush/vertx/examples/Greeter.java`
 
 http://localhost:8080
 
@@ -94,7 +97,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-js/src/main/js`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.js`
+`vertx run org/swisspush/vertx/examples/Greeter.js`
 
 http://localhost:8080
 
@@ -203,11 +206,12 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.java --instances 2`
+`vertx run org/swisspush/vertx/examples/Greeter.java --instances 2`
 
 `curl http://localhost:8080`
 
 Same with browser --> sticky session
+http://vertx.io/docs/vertx-web/js/#_session_stores
 
 ---
 class: remark-slide-content-small
@@ -220,13 +224,15 @@ class: remark-slide-content-small
 
 `java -DcryptoInstances=1 -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
 
+`while true; do ps -C java -o %cpu,cmd | grep verticles; sleep 0.3; clear; done`
+
 `visualvm`
 
 x=2...max-cores+2  
 `java -DcryptoInstances=x -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
 
 test-series(x=1...6) = {32,60,72,79,78,80}  
-Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz, 4 cores
 
 ---
 
@@ -300,7 +306,7 @@ class: remark-slide-content-small
 
 # Eventbus Chat (One Instance)
 
-`cd vertx-examples/verticle-worker`
+`cd vertx-examples/eventbus-chat`
 
 `gradle shadowJar`
 
@@ -319,7 +325,9 @@ http://localhost:8989/shell.html (admin/password)
 
 `bus-tail chat.to.client`
 
-`bus-send chat.to.server "from the shell"`
+`bus-publish chat.to.server "from the shell"`
+
+`bus-publish chat.to.client "from the shell"`
 
 ---
 class: remark-slide-content-small

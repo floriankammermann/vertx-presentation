@@ -436,7 +436,7 @@ http://localhost:7878/clusterWatchdogStats
 * improved fault isolation
 * independent development
 * can be implemented in different languages
-* minimal archtitectural lockin
+* minimal archtitectural lock in
 * smart endpoints, dump pipes
 * organized around business capabilities and priorities
 * interaction with other microservices over standard interfaces
@@ -446,6 +446,89 @@ http://localhost:7878/clusterWatchdogStats
 # Vert.x Microservice Framework
 
 https://github.com/amoAHCP/vxms
+
+---
+
+---
+
+# the reactive manifesto
+
+* __Responsive:__ The system responds in a timely manner if at all possible
+* __Resilient:__ The system stays responsive in the face of failure
+* __Elastic:__ The system stays responsive under varying workload
+* __Message Driven:__ Reactive Systems rely on asynchronous message-passing to establish a boundary between components
+
+---
+
+# Responsive
+
+* can be solved with different architectures
+* the nonblocking, reactor model of vert.x helps
+
+---
+
+# Resilient
+
+* no global state. Verticles and handlers have to be stateless
+* if you want to do nasty things, you can do it also with vert.x
+* failure should be bounded to a handler
+
+---
+
+# Elastic
+
+* scale processing units up and down
+* could be done with vertx, but makes more sense on system level
+
+---
+
+# Message Driven
+
+* can be solved with http server, tcp server, event bus
+* the producer / consumer speed problem
+  * blocking calls --> no way
+  * buffering and/or dropping --> not that nice
+  * reactive streams to the rescue
+
+---
+
+# Reactive Streams
+
+* its a standard http://www.reactive-streams.org/
+* implemented by vert.x, akka, mongodb, RxJava, MongoDB, RabbitMQ/AMQP (and more)
+* solves the problem of backpressure
+* flow control on ISO/OSI networklayer application (already done by tcp/ip on layer transport)
+
+---
+
+# Reactive Streams
+
+* its a standard http://www.reactive-streams.org/
+* implemented by akka, mongodb, RxJava, MongoDB, RabbitMQ/AMQP
+* solves the problem of backpressure
+* flow control on ISO/OSI networklayer application (already done by tcp/ip on layer transport)
+
+---
+
+# Reactive Streams
+
+```java
+public void subscriberExample(HttpServerResponse response,
+                        Publisher<Buffer> otherPublisher) {
+
+    ReactiveReadStream<Buffer> rrs =
+                ReactiveReadStream.readStream();
+
+    // Subscribe the read stream to the publisher
+    otherPublisher.subscribe(rrs);
+
+    // Pump from the read stream to the http response
+    Pump pump = Pump.pump(rrs, response);
+
+    pump.start();
+
+}
+```
 
 ---
 
@@ -528,7 +611,7 @@ http://jobs.post.ch
 
 # Resources
 
-https://github.com/floriankammermann/vertx-gateleen-presentation
+https://github.com/floriankammermann/vertx-presentation
 
 https://github.com/floriankammermann/vertx-examples
 

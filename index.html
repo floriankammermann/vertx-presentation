@@ -31,9 +31,10 @@ class: center, middle
 # Agenda
 
 1. What is vert.x
-2. Vert.x by examples
+2. vert.x by examples
 3. vert.x and microservices
-4. vert.x web
+4. Whats the fuzz about reactive
+5. vert.x web
 
 ---
 
@@ -48,20 +49,22 @@ class: center, middle
 
 # vert.x
 
-## Think of it as a Swiss Army Knife <br> for building modern, scalable, apps
+## Think of it as a Swiss Army Knife <br> for building modern, reactive, apps
 
 ---
 class: p-margin-small
 
 Runs on the JVM 
  
-Polyglot, application components can be written in Java, JavaScript, Groovy, Ruby, Ceylon 
+Polyglot, application components can be written in Java, JavaScript, Groovy, Ruby, Ceylon
 
 Event Driven, communication over distributed event bus  
 
 Simple concurrency model, all code is single threaded  
 
-(Simple), asynchronous programming model  
+(Simple), asynchronous programming model
+
+Its reactive (reactive streams, rxjava support)
 
 ---
 class: remark-slide-content-small
@@ -83,7 +86,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.java`
+`vertx run org/swisspush/vertx/examples/Greeter.java`
 
 http://localhost:8080
 
@@ -94,7 +97,7 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-js/src/main/js`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.js`
+`vertx run org/swisspush/vertx/examples/Greeter.js`
 
 http://localhost:8080
 
@@ -203,11 +206,12 @@ class: remark-slide-content-small
 
 `cd vertx-examples/hello-world-java/src/main/java`
 
-`vertx run org/swisspush/vertx/examples/HelloJugBern.java --instances 2`
+`vertx run org/swisspush/vertx/examples/Greeter.java --instances 2`
 
 `curl http://localhost:8080`
 
 Same with browser --> sticky session
+http://vertx.io/docs/vertx-web/js/#_session_stores
 
 ---
 class: remark-slide-content-small
@@ -220,13 +224,15 @@ class: remark-slide-content-small
 
 `java -DcryptoInstances=1 -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
 
+`while true; do ps -C java -o %cpu,cmd | grep verticles; sleep 0.3; clear; done`
+
 `visualvm`
 
 x=2...max-cores+2  
 `java -DcryptoInstances=x -jar build/libs/verticles-0.0.1-SNAPSHOT-all.jar`
 
 test-series(x=1...6) = {32,60,72,79,78,80}  
-Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz, 4 cores
 
 ---
 
@@ -306,7 +312,7 @@ class: remark-slide-content-small
 
 # Eventbus Chat (One Instance)
 
-`cd vertx-examples/verticle-worker`
+`cd vertx-examples/eventbus-chat`
 
 `gradle shadowJar`
 
@@ -325,44 +331,20 @@ http://localhost:8989/shell.html (admin/password)
 
 `bus-tail chat.to.client`
 
-`bus-send chat.to.server "from the shell"`
+`bus-publish chat.to.server "from the shell"`
 
----
-class: remark-slide-content-small
-
-# Eventbus Chat (Two Instances Clustered)
-
-`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
-`java -DshellPort=8999 -DhttpPort=8181 -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`  
-
-http://localhost:8080  
-http://localhost:8181
+`bus-publish chat.to.client "from the shell no timestamp"`
 
 ---
 class: p-margin-small
 
 # Eventbus (Discovery)
 
-Pluggable Clustermanager, default Hazelcast 
+Pluggable Clustermanager, default Hazelcast
 
 Hazelcast uses Multicast to discover nodes
 
 Inter-node transport over tcp connections, done by vert.x
-
----
-class: remark-slide-content-small
-
-# Eventbus (Clusterwatchdog)
-
-`git clone https://github.com/swisspush/vertx-cluster-watchdog.git`
-
-`cd vertx-cluster-watchdog; gradle shadowJar`
-
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf.json`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf1.json`  
-`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf2.json`  
-
-http://localhost:7878/clusterWatchdogStats
 
 ---
 
@@ -374,46 +356,76 @@ http://localhost:7878/clusterWatchdogStats
 
 ---
 
-# Eventbus Chat (Messaging Type)
-
-Javascript Client uses publish/subscribe  
-We sent to both instances, which sent two messages back
-
-```javascript
-eb.publish("chat.to.server", message);
-```
-change to 
- 
-```javascript
-eb.send("chat.to.server", message);
-```
----
-
-# SockJS 
+# Eventbus in Browser
 
 * http://sockjs.org/
 * Browser JavaScript library that provides a WebSocket-like object
-* Coherent, cross-browser, Javascript API
-* Low latency, full duplex, cross-domain communication channel between
+* Coherent, cross-browser, javascript API
+* Low latency, full duplex, cross-domain communication channel
 
 ---
 
-# SockJS
+# Eventbus in Browser
 
 SockJSHandler for using SockJS in vert.x-web applications
 
 ```java
 Router router = Router.router(vertx);
 
-SockJSHandlerOptions options = 
+SockJSHandlerOptions options =
 	new SockJSHandlerOptions()
 		.setHeartbeatInterval(2000);
 
-SockJSHandler sockJSHandler = 
+SockJSHandler sockJSHandler =
 	SockJSHandler.create(vertx, options);
 
 router.route("/myapp/*").handler(sockJSHandler);
 ```
+
+---
+class: remark-slide-content-small
+
+# Eventbus Chat (Two Instances Clustered)
+
+`java -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`
+
+`java -DshellPort=8999 -DhttpPort=8181 -jar build/libs/eventbus-chat-0.0.1-SNAPSHOT-all.jar -cluster`
+
+http://localhost:8080/index8080.html
+http://localhost:8181/index8181.html
+
+---
+
+# Eventbus Chat (Messaging Type)
+
+Javascript Client uses publish/subscribe
+We sent to both instances, which sent two messages back
+
+```javascript
+eb.publish("chat.to.server", message);
+```
+change to
+
+```javascript
+eb.send("chat.to.server", message);
+```
+
+---
+class: remark-slide-content-small
+
+# Eventbus (Clusterwatchdog)
+
+`git clone https://github.com/swisspush/vertx-cluster-watchdog.git`
+
+`cd vertx-cluster-watchdog; gradle shadowJar`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf.json`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf1.json`
+
+`java -jar build/libs/cluster-watchdog-2.1.1-SNAPSHOT-all.jar -conf conf2.json`
+
+http://localhost:7878/clusterWatchdogStats
 
 ---
 
@@ -430,7 +442,7 @@ router.route("/myapp/*").handler(sockJSHandler);
 * improved fault isolation
 * independent development
 * can be implemented in different languages
-* minimal archtitectural lockin
+* minimal archtitectural lock in
 * smart endpoints, dump pipes
 * organized around business capabilities and priorities
 * interaction with other microservices over standard interfaces
@@ -440,6 +452,78 @@ router.route("/myapp/*").handler(sockJSHandler);
 # Vert.x Microservice Framework
 
 https://github.com/amoAHCP/vxms
+
+---
+
+# the reactive manifesto
+
+* __Responsive:__ The system responds in a timely manner if at all possible
+* __Resilient:__ The system stays responsive in the face of failure
+* __Elastic:__ The system stays responsive under varying workload
+* __Message Driven:__ Reactive Systems rely on asynchronous message-passing to establish a boundary between components
+
+---
+
+# Responsive
+
+* can be solved with different architectures
+* the nonblocking, multi reactor model of vert.x helps
+
+---
+
+# Resilient
+
+* no global state. Verticles and handlers have to be stateless
+* if you want to do nasty things, you can do it also with vert.x
+* failure should be bounded to a handler
+
+---
+
+# Elastic
+
+* scale processing units up and down
+* could be done with vertx, but makes more sense on system level
+
+---
+
+# Message Driven
+
+* can be solved with http server, tcp server, event bus
+* the producer / consumer speed problem
+  * blocking calls --> no way
+  * buffering and/or dropping --> not that nice
+  * reactive streams to the rescue
+
+---
+
+# Reactive Streams
+
+* its a standard http://www.reactive-streams.org/
+* implemented by vert.x, akka, mongodb, RxJava, RabbitMQ/AMQP, reactivesocket
+* solves the problem of backpressure
+* flow control on ISO/OSI networklayer application (already done by tcp/ip on layer transport)
+
+---
+
+# Reactive Streams
+
+```java
+public void subscriberExample(HttpServerResponse response,
+                        Publisher<Buffer> otherPublisher) {
+
+    ReactiveReadStream<Buffer> rrs =
+                ReactiveReadStream.readStream();
+
+    // Subscribe the read stream to the publisher
+    otherPublisher.subscribe(rrs);
+
+    // Pump from the read stream to the http response
+    Pump pump = Pump.pump(rrs, response);
+
+    pump.start();
+
+}
+```
 
 ---
 
@@ -522,7 +606,7 @@ http://jobs.post.ch
 
 # Resources
 
-https://github.com/floriankammermann/vertx-gateleen-presentation
+https://github.com/floriankammermann/vertx-presentation
 
 https://github.com/floriankammermann/vertx-examples
 
